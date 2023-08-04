@@ -2,6 +2,9 @@
 import sqlite3
 import hashlib
 from tkinter import *
+from tkinter import simpledialog
+from functools import partial
+import easygui
 import customtkinter
 
 #setting up database
@@ -15,7 +18,24 @@ id INTEGER PRIMARY KEY,
 password TEXT NOT NULL);
 """)
 
-#custom tkinter sets the theme to be blue and appearance to dark
+#creates a table if the website, username and password data isn't empty
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS Passwords(
+id INTEGER PRIMARY KEY,
+website TEXT NOT NULL,
+username TEXT NOT NULL,
+password TEXT NOT NULL);
+""")
+
+def inputGetter(string):
+    #popup screen
+    input = easygui.enterbox(string, title="Input String")
+
+    print("You entered:", input)
+    #input gets returned
+    return input
+
+ #custom tkinter sets the theme to be blue and appearance to dark
 customtkinter.set_appearance_mode("Dark")
 customtkinter.set_default_color_theme("blue")
 
@@ -142,16 +162,73 @@ def masterLogin():
 def passwordContainer():
     for widget in screen.winfo_children():
         widget.destroy()
-    screen.geometry("700x350")
+    #function adds information to database
+    def addInfo():
+        #strings declared for each respective column
+        website = "Website"
+        username = "Username"
+        password = "Password"
+        #inputGetter function called
+        websiteInput = inputGetter(website)
+        usernameInput = inputGetter(username)
+        passwordInput = inputGetter(password)
+        #values are inserted into database
+        insert_values = """INSERT INTO Passwords(website,username,password)
+        VALUES(?,?,?)"""
+        #executes and commit
+        cursor.execute(insert_values,(websiteInput,usernameInput,passwordInput))
+        db.commit()
+        #function call of the password screen
+        passwordContainer()
+    #deleteInfo fucntion deletes data if user wished
+    def deleteInfo(input):
+        cursor.execute("DELETE FROM Passwords WHERE id = ?", (input,))
+        db.commit()
+        passwordContainer()
 
+    screen.geometry("700x350")
+    
     #Label used for the text on screen
     label = Label(screen, text="Passwords",bg="#242424",fg = "white", font = ("Arial",12))
-    label.config(anchor=CENTER)
-    label.pack(pady=20)
-
+    label.grid(column=1,padx=(112,50),pady=(10,12))
+    #button used for adding password
+    button = customtkinter.CTkButton(screen, text="Add Password", command= addInfo)
+    button.grid(column=1, padx=(112,50),pady=(0,20))
+    #column labels
+    webLabel = Label(screen, text="Website",fg="white",bg="#242424")
+    webLabel.grid(row = 2, column=0, padx=55)
+    userLabel = Label(screen, text="Username",bg="#242424",fg="white")
+    userLabel.grid(row = 2, column=1, padx=55)
+    passLabel = Label(screen, text="Password",bg="#242424",fg="white")
+    passLabel.grid(row = 2, column=2, padx=55)
+    #execute
+    cursor.execute("SELECT * FROM Passwords")
+    #if there is no data
+    if (cursor.fetchall() != None):
+        i = 0
+        #loop begins
+        while True:
+            #fetches data from passwords db
+            cursor.execute("SELECT * FROM Passwords")
+            arr = cursor.fetchall() 
+            #labels for website, username, and Password data
+            label = Label(screen, text=(arr[i][1]),bg="#242424",fg="white")
+            label.grid(column=0, row = i+3)
+            label = Label(screen, text=(arr[i][2]),bg="#242424",fg="white")
+            label.grid(column=1, row = i+3)
+            label = Label(screen, text=(arr[i][3]),bg="#242424",fg="white")
+            label.grid(column=2, row = i+3)
+            #remove button
+            button = Button(screen, text="Remove",command= partial(deleteInfo,arr[i][0]),bg="#242424",fg="white")
+            button.grid(column=3,row=i+3,pady=10)
+            #i keeps incrementing as the loop runs
+            i = i+1
+            cursor.execute("SELECT * FROM Passwords")
+            #only when there is less data than the value of i the loop will end
+            if (len(cursor.fetchall()) <= i):
+                break
 #executes database
 cursor.execute("SELECT * FROM primarypassword")
-
 #if there are no rows then directed to master login
 if cursor.fetchall():
     masterLogin()
