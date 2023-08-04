@@ -26,12 +26,10 @@ website TEXT NOT NULL,
 username TEXT NOT NULL,
 password TEXT NOT NULL);
 """)
-
+#inputGetter function takes user input via popup screens
 def inputGetter(string):
     #popup screen
     input = easygui.enterbox(string, title="Input String")
-
-    print("You entered:", input)
     #input gets returned
     return input
 
