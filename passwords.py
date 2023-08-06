@@ -121,7 +121,7 @@ def resetScreen(resetKey):
         widget.destroy()
     screen.geometry("700x350")
     #using labels for thegui
-    opening_Label = Label(text="Reset Password",fg="white",bg="#242424",font=('Georgia 20'))
+    opening_Label = Label(text="Recovery Key",fg="white",bg="#242424",font=('Georgia 20'))
     #centers the label
     opening_Label.pack()
     opening_Label.pack(pady=(20,0))
