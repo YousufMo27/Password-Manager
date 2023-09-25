@@ -1,6 +1,6 @@
 # PassKeep
 
-This is a password manager made with Python, SQL, and Tkinter GUIs which stores Passwords which users would like to save. There is also a login system to prevent anyone from accessing the information.
+PassKeep is a password manager made with Python, SQL, and Tkinter GUIs which stores Passwords which users would like to save. There is also a login system to prevent anyone from accessing the information.
 
 
 
